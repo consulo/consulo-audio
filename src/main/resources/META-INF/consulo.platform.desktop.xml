@@ -1,0 +1,5 @@
+<consulo-plugin>
+	<extensions defaultExtensionNs="consulo.audio">
+		<fileTypeProvider implementation="consulo.audio.provider.impl.DesktopFileTypeProvider"/>
+	</extensions>
+</consulo-plugin>

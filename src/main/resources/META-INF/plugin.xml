@@ -1,0 +1,16 @@
+<consulo-plugin>
+	<id>consulo.audio</id>
+	<name>Audio</name>
+	<description>Plugin for playing audio files</description>
+	<experimental>true</experimental>
+
+	<depends config-file="consulo.platform.desktop.xml" optional="true">consulo.platform.desktop</depends>
+
+	<extensionPoints>
+		<extensionPoint name="fileTypeProvider" interface="consulo.audio.provider.AudioFileTypeProvider"/>
+	</extensionPoints>
+
+	<extensions defaultExtensionNs="com.intellij">
+		<fileTypeFactory implementation="consulo.audio.AudioFileTypeFactory"/>
+	</extensions>
+</consulo-plugin>

@@ -4,9 +4,9 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import consulo.audio.provider.AudioFileTypeProvider;
+import jakarta.inject.Inject;
 
 import javax.annotation.Nonnull;
-import javax.inject.Inject;
 
 /**
  * @author VISTALL

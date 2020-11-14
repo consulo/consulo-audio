@@ -7,10 +7,12 @@
 	<depends config-file="consulo.platform.desktop.xml" optional="true">consulo.platform.desktop</depends>
 
 	<extensionPoints>
-		<extensionPoint name="fileTypeProvider" interface="consulo.audio.provider.AudioFileTypeProvider"/>
+		<extensionPoint name="engine" interface="consulo.audio.engine.AudioEngine"/>
 	</extensionPoints>
 
 	<extensions defaultExtensionNs="com.intellij">
 		<fileTypeFactory implementation="consulo.audio.AudioFileTypeFactory"/>
+
+		<fileEditorProvider implementation="consulo.audio.fileEditorProvider.AudioFileEditorProvider"/>
 	</extensions>
 </consulo-plugin>

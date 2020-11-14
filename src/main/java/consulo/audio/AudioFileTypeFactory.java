@@ -3,7 +3,7 @@ package consulo.audio;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
-import consulo.audio.provider.AudioFileTypeProvider;
+import consulo.audio.engine.AudioEngine;
 import jakarta.inject.Inject;
 
 import javax.annotation.Nonnull;
@@ -25,6 +25,6 @@ public class AudioFileTypeFactory extends FileTypeFactory
 	@Override
 	public void createFileTypes(@Nonnull FileTypeConsumer fileTypeConsumer)
 	{
-		AudioFileTypeProvider.EP_NAME.forEachExtensionSafe(myApplication, it -> it.createFileTypes(fileTypeConsumer));
+		AudioEngine.EP_NAME.forEachExtensionSafe(myApplication, audioEngine -> audioEngine.registerFileTypes(fileTypeConsumer));
 	}
 }

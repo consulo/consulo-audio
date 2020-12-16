@@ -31,18 +31,41 @@ public class JavaxSoundAudioEngine implements AudioEngine
 	{
 		File file = VfsUtil.virtualToIoFile(audioFile);
 
-		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
+		AudioInputStream encodedStream = AudioSystem.getAudioInputStream(file);
 
 		Clip clip;
 		try
 		{
+			AudioFormat encodedFormat = encodedStream.getFormat();
+
+			int bitDepth = 16;
+
+			AudioFormat decodedFormat = new javax.sound.sampled.AudioFormat(
+					javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED,
+					encodedFormat.getSampleRate(),
+					bitDepth,
+					encodedFormat.getChannels(),
+					encodedFormat.getChannels() * (bitDepth / 8), // 2*8 = 16-bits per sample per channel
+					44100,
+					encodedFormat.isBigEndian());
+
+
 			clip = AudioSystem.getClip();
 
-			clip.open(audioInputStream);
+			if(AudioSystem.isConversionSupported(decodedFormat, encodedFormat))
+			{
+				AudioInputStream decodedStream = AudioSystem.getAudioInputStream(decodedFormat, encodedStream);
+
+				clip.open(decodedStream);
+			}
+			else
+			{
+				clip.open(encodedStream);
+			}
 		}
 		catch(IOException | LineUnavailableException e)
 		{
-			StreamUtil.closeStream(audioInputStream);
+			StreamUtil.closeStream(encodedStream);
 			throw e;
 		}
 

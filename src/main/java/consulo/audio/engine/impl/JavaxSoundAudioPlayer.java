@@ -24,15 +24,11 @@ public class JavaxSoundAudioPlayer implements AudioPlayer
 
 	private State myState = State.EMPTY;
 
-	private long myMicroSecondLenght;
-
 	private long myPosition;
 
 	public JavaxSoundAudioPlayer(@Nonnull Clip clip)
 	{
 		myClip = clip;
-
-		myMicroSecondLenght = myClip.getMicrosecondLength();
 
 		myClip.addLineListener(new LineListener()
 		{
@@ -89,9 +85,15 @@ public class JavaxSoundAudioPlayer implements AudioPlayer
 	}
 
 	@Override
-	public long getLengthInSeconds()
+	public long getPosition()
 	{
-		return myClip.getMicrosecondLength() / 1000_000L;
+		return myClip.getMicrosecondPosition() / 1000L;
+	}
+
+	@Override
+	public long getMaxPosition()
+	{
+		return myClip.getMicrosecondLength() / 1000L;
 	}
 
 	@Override

@@ -16,7 +16,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LoadingDecorator;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBLabel;
-import com.intellij.util.text.DateFormatUtil;
 import consulo.audio.engine.AudioEngine;
 import consulo.audio.engine.AudioPlayer;
 import consulo.audio.fileEditorProvider.actions.PlayOrPauseAction;
@@ -96,7 +95,7 @@ public class AudioFileEditor extends UserDataHolderBase implements FileEditor
 						return;
 					}
 
-					component.setText(DateFormatUtil.formatTimeWithSeconds(player.getLengthInSeconds()));
+					component.setText(player.getPosition() + " of " + player.getMaxPosition() + " ms");
 				}
 			});
 

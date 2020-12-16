@@ -14,5 +14,9 @@ public interface AudioPlayer extends Disposable
 
 	boolean isPlaying();
 
-	long getLengthInSeconds();
+	// in ms
+	long getPosition();
+
+	// in ms
+	long getMaxPosition();
 }

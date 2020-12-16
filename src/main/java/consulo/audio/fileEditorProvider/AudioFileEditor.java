@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LoadingDecorator;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import consulo.audio.engine.AudioEngine;
 import consulo.audio.engine.AudioPlayer;
 import consulo.audio.fileEditorProvider.actions.PlayOrPauseAction;
@@ -23,7 +24,9 @@ import consulo.audio.fileEditorProvider.actions.StopAction;
 import consulo.disposer.Disposer;
 import consulo.logging.Logger;
 import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.util.concurrent.AsyncResult;
 import consulo.util.dataholder.UserDataHolderBase;
 import kava.beans.PropertyChangeListener;
 
@@ -58,6 +61,7 @@ public class AudioFileEditor extends UserDataHolderBase implements FileEditor
 
 	@Nonnull
 	@Override
+	@RequiredUIAccess
 	public JComponent getComponent()
 	{
 		if(myRoot != null)
@@ -72,60 +76,87 @@ public class AudioFileEditor extends UserDataHolderBase implements FileEditor
 
 		AudioEngine engine = AudioEngine.forFile(Application.get(), myVirtualFile);
 
-		try
-		{
-			myAudioPlayer = engine.create(myVirtualFile);
-			myLoadingDecorator.stopLoading();
+		UIAccess uiAccess = UIAccess.current();
+		AsyncResult<AudioPlayer> result = loadPlayer(engine, myVirtualFile);
+		result.doWhenDone(audioPlayer -> {
+			myAudioPlayer = audioPlayer;
 
-			ActionGroup.Builder builder = ActionGroup.newImmutableBuilder();
+			uiAccess.give(() -> initPlayerUI(audioPlayer));
+		});
 
-			builder.add(new PlayOrPauseAction());
-			builder.add(new StopAction());
-			builder.add(new DefaultCustomComponentAction(JBLabel::new)
-			{
-				@RequiredUIAccess
-				@Override
-				public void update(@Nonnull AnActionEvent e)
-				{
-					JBLabel component = (JBLabel) e.getPresentation().getClientProperty(CustomComponentAction.COMPONENT_KEY);
+		result.doWhenRejectedWithThrowable(e -> {
+			uiAccess.give(() -> {
+				LOG.warn(e);
 
-					AudioPlayer player = e.getData(AudioEditorKeys.AUDIO_PLAYER);
-					if(player == null || component == null)
-					{
-						return;
-					}
+				JBLabel label = new JBLabel(e.getMessage(), PlatformIconGroup.generalBalloonError(), SwingConstants.CENTER);
+				myRoot.add(label, BorderLayout.CENTER);
 
-					component.setText(player.getPosition() + " of " + player.getMaxPosition() + " ms");
-				}
+				myLoadingDecorator.stopLoading();
 			});
-
-			ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("audio-editor", builder.build(), true);
-			toolbar.setTargetComponent(myRoot);
-
-			DataManager.registerDataProvider(myRoot, key -> {
-				if(key == AudioEditorKeys.AUDIO_PLAYER)
-				{
-					return myAudioPlayer;
-				}
-
-				return null;
-			});
-
-			JComponent component = toolbar.getComponent();
-
-			myRoot.add(component, BorderLayout.CENTER);
-		}
-		catch(Exception e)
-		{
-			LOG.warn(e);
-
-			JBLabel label = new JBLabel(e.getMessage(), PlatformIconGroup.generalBalloonError(), SwingConstants.CENTER);
-			myRoot.add(label, BorderLayout.CENTER);
-
-			myLoadingDecorator.stopLoading();
-		}
-
+		});
 		return myLoadingDecorator.getComponent();
+	}
+
+	private void initPlayerUI(@Nonnull AudioPlayer audioPlayer)
+	{
+		ActionGroup.Builder builder = ActionGroup.newImmutableBuilder();
+
+		builder.add(new PlayOrPauseAction());
+		builder.add(new StopAction());
+		builder.add(new DefaultCustomComponentAction(JBLabel::new)
+		{
+			@RequiredUIAccess
+			@Override
+			public void update(@Nonnull AnActionEvent e)
+			{
+				JBLabel component = (JBLabel) e.getPresentation().getClientProperty(CustomComponentAction.COMPONENT_KEY);
+
+				AudioPlayer player = e.getData(AudioEditorKeys.AUDIO_PLAYER);
+				if(player == null || component == null)
+				{
+					return;
+				}
+
+				component.setText(player.getPosition() + " of " + player.getMaxPosition() + " ms");
+			}
+		});
+
+		ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("audio-editor", builder.build(), true);
+		toolbar.setTargetComponent(myRoot);
+
+		DataManager.registerDataProvider(myRoot, key -> {
+			if(key == AudioEditorKeys.AUDIO_PLAYER)
+			{
+				return audioPlayer;
+			}
+
+			return null;
+		});
+
+		JComponent component = toolbar.getComponent();
+
+		myRoot.add(component, BorderLayout.CENTER);
+
+		myLoadingDecorator.stopLoading();
+	}
+
+	@Nonnull
+	private AsyncResult<AudioPlayer> loadPlayer(@Nonnull AudioEngine audioEngine, @Nonnull VirtualFile file)
+	{
+		AsyncResult<AudioPlayer> result = AsyncResult.undefined();
+
+		AppExecutorUtil.getAppExecutorService().execute(() -> {
+			try
+			{
+				result.setDone(audioEngine.createPlayer(file));
+			}
+			catch(Throwable e)
+			{
+				result.rejectWithThrowable(e);
+			}
+		});
+
+		return result;
 	}
 
 	@Nullable

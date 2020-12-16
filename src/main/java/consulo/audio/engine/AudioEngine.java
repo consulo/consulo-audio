@@ -31,7 +31,7 @@ public interface AudioEngine
 	boolean isAvailable(@Nonnull VirtualFile virtualFile);
 
 	@Nonnull
-	AudioPlayer create(@Nonnull VirtualFile audioFile) throws Exception;
+	AudioPlayer createPlayer(@Nonnull VirtualFile audioFile) throws Exception;
 
 	void registerFileTypes(FileTypeConsumer fileTypeConsumer);
 }

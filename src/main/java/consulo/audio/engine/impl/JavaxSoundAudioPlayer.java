@@ -1,11 +1,14 @@
 package consulo.audio.engine.impl;
 
+import com.intellij.util.EventDispatcher;
 import consulo.audio.engine.AudioPlayer;
+import consulo.audio.engine.AudioPlayerListener;
+import consulo.disposer.Disposable;
 
 import javax.annotation.Nonnull;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
 
 /**
  * @author VISTALL
@@ -26,26 +29,57 @@ public class JavaxSoundAudioPlayer implements AudioPlayer
 
 	private long myPosition;
 
+	private float myLastVolume = 0f;
+
+	private final EventDispatcher<AudioPlayerListener> myListeners = EventDispatcher.create(AudioPlayerListener.class);
+
 	public JavaxSoundAudioPlayer(@Nonnull Clip clip)
 	{
 		myClip = clip;
 
-		myClip.addLineListener(new LineListener()
-		{
-			@Override
-			public void update(LineEvent lineEvent)
+		myClip.addLineListener(lineEvent -> {
+			if(lineEvent.getType() == LineEvent.Type.START)
 			{
-				if(lineEvent.getType() == LineEvent.Type.START)
-				{
-					myState = State.PLAYING;
-				}
-
-				if(lineEvent.getType() == LineEvent.Type.STOP)
-				{
-					myState = State.PAUSE;
-				}
+				myListeners.getMulticaster().onPlay();
+			}
+			else if(lineEvent.getType() == LineEvent.Type.STOP)
+			{
+				myListeners.getMulticaster().onStop();
 			}
 		});
+
+		setVolume(50f);
+	}
+
+	@Override
+	public void addListener(AudioPlayerListener listener, Disposable parent)
+	{
+		myListeners.addListener(listener, parent);
+	}
+
+	@Override
+	public float getVolume()
+	{
+		return myLastVolume;
+	}
+
+	@Override
+	public void setVolume(float volume)
+	{
+		FloatControl gainControl = (FloatControl) myClip.getControl(FloatControl.Type.MASTER_GAIN);
+
+		gainControl.setValue(-30);
+
+		float min = gainControl.getMinimum();
+		float max = gainControl.getMaximum();
+
+		int positiveValue = (int) (((max - min) / 100f) * volume);
+
+		positiveValue += min;
+
+		myLastVolume = positiveValue;
+
+		gainControl.setValue(positiveValue);
 	}
 
 	@Override
@@ -54,6 +88,10 @@ public class JavaxSoundAudioPlayer implements AudioPlayer
 		switch(myState)
 		{
 			case EMPTY:
+				if(myClip.isActive())
+				{
+					myClip.stop();
+				}
 				myState = State.PLAYING;
 				myClip.start();
 				break;

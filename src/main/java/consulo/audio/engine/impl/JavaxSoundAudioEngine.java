@@ -23,7 +23,15 @@ public class JavaxSoundAudioEngine implements AudioEngine
 	@Override
 	public boolean isAvailable(@Nonnull VirtualFile virtualFile)
 	{
-		return true;
+		try
+		{
+			AudioInputStream.class.getName();
+			return true;
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
 	}
 
 	@Nonnull
@@ -54,7 +62,6 @@ public class JavaxSoundAudioEngine implements AudioEngine
 					encodedFormat.getChannels() * (bitDepth / 8), // 2*8 = 16-bits per sample per channel
 					44100,
 					encodedFormat.isBigEndian());
-
 
 			clip = AudioSystem.getClip();
 

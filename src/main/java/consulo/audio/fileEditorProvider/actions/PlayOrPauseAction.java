@@ -39,14 +39,13 @@ public class PlayOrPauseAction extends DumbAwareAction
 	public void update(@Nonnull AnActionEvent e)
 	{
 		AudioPlayer player = e.getData(AudioEditorKeys.AUDIO_PLAYER);
-		if(player == null)
-		{
-			return;
-		}
-
 		Presentation presentation = e.getPresentation();
 
-		presentation.setText(player.isPlaying() ? "Pause" : "Play");
-		presentation.setIcon(player.isPlaying() ? PlatformIconGroup.actionsPause() : PlatformIconGroup.actionsExecute());
+		presentation.setEnabled(player != null);
+		if(player != null)
+		{
+			presentation.setText(player.isPlaying() ? "Pause" : "Play");
+			presentation.setIcon(player.isPlaying() ? PlatformIconGroup.actionsPause() : PlatformIconGroup.actionsExecute());
+		}
 	}
 }

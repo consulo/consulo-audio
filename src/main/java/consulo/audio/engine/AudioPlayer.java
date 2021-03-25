@@ -19,4 +19,13 @@ public interface AudioPlayer extends Disposable
 
 	// in ms
 	long getMaxPosition();
+
+	/**
+	 * @return from 0 to 100
+	 */
+	float getVolume();
+
+	void setVolume(float volume);
+
+	void addListener(AudioPlayerListener listener, Disposable parent);
 }

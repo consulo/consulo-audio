@@ -13,6 +13,10 @@
 	<extensions defaultExtensionNs="com.intellij">
 		<fileTypeFactory implementation="consulo.audio.AudioFileTypeFactory"/>
 
-		<fileEditorProvider implementation="consulo.audio.fileEditorProvider.AudioFileEditorProvider"/>
+		<fileEditorProvider implementation="consulo.audio.fileEditorProvider.AudioPlaylistFileEditorProvider"/>
+
+		<virtualFileSystem implementation="consulo.audio.playlist.vfs.PlaylistVirtualFileSystem"/>
+
+		<projectService serviceImplementation="consulo.audio.playlist.AudioPlaylistStore"/>
 	</extensions>
 </consulo-plugin>

@@ -1,6 +1,14 @@
 package consulo.audio;
 
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.INativeFileType;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import consulo.audio.fileEditorProvider.AudioPlaylistFileEditor;
+import consulo.audio.playlist.vfs.PlaylistVirtualFile;
+import consulo.audio.playlist.vfs.PlaylistVirtualFileSystem;
 import consulo.ui.image.Image;
 
 import javax.annotation.Nonnull;
@@ -9,7 +17,7 @@ import javax.annotation.Nonnull;
  * @author VISTALL
  * @since 2020-09-04
  */
-public class AudioFileType implements FileType
+public class AudioFileType implements FileType, INativeFileType
 {
 	public static final AudioFileType INSTANCE = new AudioFileType();
 
@@ -45,5 +53,20 @@ public class AudioFileType implements FileType
 	public Image getIcon()
 	{
 		return AudioIcons.AudioFileType;
+	}
+
+	@Override
+	public boolean openFileInAssociatedApplication(Project project, @Nonnull VirtualFile virtualFile)
+	{
+		FileEditor[] fileEditors = FileEditorManager.getInstance(project).openFile(new PlaylistVirtualFile(PlaylistVirtualFileSystem.getInstance()), true);
+		for(FileEditor fileEditor : fileEditors)
+		{
+			if(fileEditor instanceof AudioPlaylistFileEditor)
+			{
+				((AudioPlaylistFileEditor) fileEditor).addFile(virtualFile);
+				break;
+			}
+		}
+		return true;
 	}
 }

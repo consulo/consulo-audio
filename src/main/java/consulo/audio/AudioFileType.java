@@ -7,6 +7,7 @@ import com.intellij.openapi.fileTypes.INativeFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import consulo.audio.fileEditorProvider.AudioPlaylistFileEditor;
+import consulo.audio.icon.AudioIconGroup;
 import consulo.audio.playlist.vfs.PlaylistVirtualFile;
 import consulo.audio.playlist.vfs.PlaylistVirtualFileSystem;
 import consulo.ui.image.Image;
@@ -52,7 +53,7 @@ public class AudioFileType implements FileType, INativeFileType
 	@Override
 	public Image getIcon()
 	{
-		return AudioIcons.AudioFileType;
+		return AudioIconGroup.audioFile();
 	}
 
 	@Override

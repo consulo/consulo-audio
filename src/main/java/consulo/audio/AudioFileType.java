@@ -10,6 +10,7 @@ import consulo.audio.fileEditorProvider.AudioPlaylistFileEditor;
 import consulo.audio.icon.AudioIconGroup;
 import consulo.audio.playlist.vfs.PlaylistVirtualFile;
 import consulo.audio.playlist.vfs.PlaylistVirtualFileSystem;
+import consulo.localize.LocalizeValue;
 import consulo.ui.image.Image;
 
 import javax.annotation.Nonnull;
@@ -37,9 +38,9 @@ public class AudioFileType implements FileType, INativeFileType
 
 	@Nonnull
 	@Override
-	public String getDescription()
+	public LocalizeValue getDescription()
 	{
-		return "Audio files";
+		return LocalizeValue.localizeTODO("Audio files");
 	}
 
 	@Nonnull

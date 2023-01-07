@@ -1,6 +1,7 @@
 package consulo.audio.engine;
 
 import consulo.disposer.Disposable;
+import consulo.util.dataholder.Key;
 
 /**
  * @author VISTALL
@@ -8,6 +9,8 @@ import consulo.disposer.Disposable;
  */
 public interface AudioPlayer extends Disposable
 {
+	Key<AudioPlayer> KEY = Key.create(AudioPlayer.class);
+
 	void playOrPause();
 
 	void stop();

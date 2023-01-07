@@ -1,12 +1,11 @@
 package consulo.audio.fileEditorProvider.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import consulo.audio.engine.AudioPlayer;
-import consulo.audio.fileEditorProvider.AudioEditorKeys;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DumbAwareAction;
+import consulo.ui.ex.action.Presentation;
 
 import javax.annotation.Nonnull;
 
@@ -25,7 +24,7 @@ public class StopAction extends DumbAwareAction
 	@Override
 	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
-		AudioPlayer player = e.getData(AudioEditorKeys.AUDIO_PLAYER);
+		AudioPlayer player = e.getData(AudioPlayer.KEY);
 
 		if(player != null)
 		{
@@ -37,7 +36,7 @@ public class StopAction extends DumbAwareAction
 	@Override
 	public void update(@Nonnull AnActionEvent e)
 	{
-		AudioPlayer player = e.getData(AudioEditorKeys.AUDIO_PLAYER);
+		AudioPlayer player = e.getData(AudioPlayer.KEY);
 		Presentation presentation = e.getPresentation();
 
 		presentation.setEnabled(player != null);

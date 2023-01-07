@@ -1,27 +1,21 @@
 package consulo.audio.fileEditorProvider;
 
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.ui.LoadingDecorator;
-import com.intellij.openapi.ui.VerticalFlowLayout;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.panels.HorizontalLayout;
-import com.intellij.ui.table.TableView;
-import com.intellij.util.concurrency.AppExecutorUtil;
-import com.intellij.util.ui.ColumnInfo;
-import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.ListTableModel;
+import consulo.application.util.concurrent.AppExecutorUtil;
 import consulo.audio.engine.AudioPlayer;
 import consulo.audio.engine.AudioPlayerListener;
 import consulo.audio.fileEditorProvider.actions.PlayOrPauseAction;
 import consulo.audio.fileEditorProvider.actions.StopAction;
 import consulo.audio.playlist.AudioPlaylistStore;
+import consulo.dataContext.DataManager;
 import consulo.disposer.Disposable;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.ActionGroup;
+import consulo.ui.ex.action.ActionManager;
+import consulo.ui.ex.action.ActionToolbar;
+import consulo.ui.ex.awt.*;
+import consulo.ui.ex.awt.table.ListTableModel;
+import consulo.ui.ex.awt.table.TableView;
+import consulo.util.lang.StringUtil;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
@@ -99,7 +93,7 @@ public class AudioPlayerUI implements Disposable
 		toolbar.setTargetComponent(myRootPanel);
 
 		DataManager.registerDataProvider(myRootPanel, key -> {
-			if(key == AudioEditorKeys.AUDIO_PLAYER)
+			if(key == AudioPlayer.KEY)
 			{
 				return myAudioPlayerWrapper == null ? null : myAudioPlayerWrapper.getPlayer();
 			}

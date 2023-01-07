@@ -1,8 +1,9 @@
 package consulo.audio.playlist.vfs;
 
-import com.intellij.openapi.vfs.DeprecatedVirtualFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.virtualFileSystem.BaseVirtualFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,7 +12,8 @@ import javax.annotation.Nullable;
  * @author VISTALL
  * @since 17/12/2020
  */
-public class PlaylistVirtualFileSystem extends DeprecatedVirtualFileSystem
+@ExtensionImpl
+public class PlaylistVirtualFileSystem extends BaseVirtualFileSystem
 {
 	@Nonnull
 	public static PlaylistVirtualFileSystem getInstance()

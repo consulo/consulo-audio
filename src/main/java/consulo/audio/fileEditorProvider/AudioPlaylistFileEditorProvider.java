@@ -1,12 +1,14 @@
 package consulo.audio.fileEditorProvider;
 
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorPolicy;
-import com.intellij.openapi.fileEditor.FileEditorProvider;
-import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.dumb.DumbAware;
 import consulo.audio.playlist.vfs.PlaylistVirtualFile;
+import consulo.fileEditor.FileEditor;
+import consulo.fileEditor.FileEditorPolicy;
+import consulo.fileEditor.FileEditorProvider;
+import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.virtualFileSystem.VirtualFile;
 
 import javax.annotation.Nonnull;
 
@@ -14,6 +16,7 @@ import javax.annotation.Nonnull;
  * @author VISTALL
  * @since 2020-11-12
  */
+@ExtensionImpl
 public class AudioPlaylistFileEditorProvider implements FileEditorProvider, DumbAware
 {
 	@Override
@@ -22,6 +25,7 @@ public class AudioPlaylistFileEditorProvider implements FileEditorProvider, Dumb
 		return virtualFile instanceof PlaylistVirtualFile;
 	}
 
+	@RequiredUIAccess
 	@Nonnull
 	@Override
 	public FileEditor createEditor(@Nonnull Project project, @Nonnull VirtualFile virtualFile)

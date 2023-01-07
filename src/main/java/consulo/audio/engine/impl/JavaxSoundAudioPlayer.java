@@ -1,9 +1,9 @@
 package consulo.audio.engine.impl;
 
-import com.intellij.util.EventDispatcher;
 import consulo.audio.engine.AudioPlayer;
 import consulo.audio.engine.AudioPlayerListener;
 import consulo.disposer.Disposable;
+import consulo.proxy.EventDispatcher;
 
 import javax.annotation.Nonnull;
 import javax.sound.sampled.Clip;

@@ -1,9 +1,10 @@
 package consulo.audio.engine;
 
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.fileTypes.FileTypeConsumer;
-import com.intellij.openapi.vfs.VirtualFile;
-import consulo.extensions.StrictExtensionPointName;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
+import consulo.application.Application;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.fileType.FileTypeConsumer;
 
 import javax.annotation.Nonnull;
 
@@ -11,13 +12,12 @@ import javax.annotation.Nonnull;
  * @author VISTALL
  * @since 2020-11-12
  */
+@ExtensionAPI(ComponentScope.APPLICATION)
 public interface AudioEngine
 {
-	StrictExtensionPointName<Application, AudioEngine> EP_NAME = StrictExtensionPointName.forApplication("consulo.audio.engine");
-
 	static AudioEngine forFile(@Nonnull Application application, @Nonnull VirtualFile file)
 	{
-		for(AudioEngine engine : EP_NAME.getExtensionList(application))
+		for(AudioEngine engine : application.getExtensionList(AudioEngine.class))
 		{
 			if(engine.isAvailable(file))
 			{

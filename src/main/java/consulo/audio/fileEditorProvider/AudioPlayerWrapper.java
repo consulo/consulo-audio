@@ -1,14 +1,14 @@
 package consulo.audio.fileEditorProvider;
 
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.util.AsyncResult;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.concurrency.AppExecutorUtil;
+import consulo.application.Application;
+import consulo.application.util.concurrent.AppExecutorUtil;
 import consulo.audio.engine.AudioEngine;
 import consulo.audio.engine.AudioPlayer;
 import consulo.disposer.Disposable;
+import consulo.util.concurrent.AsyncResult;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -79,7 +79,7 @@ public class AudioPlayerWrapper implements Disposable
 	@Nonnull
 	public String getFilePath()
 	{
-		return VfsUtil.urlToPath(myFileUrl);
+		return VirtualFileUtil.urlToPath(myFileUrl);
 	}
 
 	@Nullable

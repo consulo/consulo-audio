@@ -8,19 +8,5 @@
 	</tags>
 	<experimental>true</experimental>
 
-	<depends config-file="consulo.platform.desktop.xml" optional="true">consulo.platform.desktop</depends>
-
-	<extensionPoints>
-		<extensionPoint name="engine" interface="consulo.audio.engine.AudioEngine"/>
-	</extensionPoints>
-
-	<extensions defaultExtensionNs="com.intellij">
-		<fileTypeFactory implementation="consulo.audio.AudioFileTypeFactory"/>
-
-		<fileEditorProvider implementation="consulo.audio.fileEditorProvider.AudioPlaylistFileEditorProvider"/>
-
-		<virtualFileSystem implementation="consulo.audio.playlist.vfs.PlaylistVirtualFileSystem"/>
-
-		<projectService serviceImplementation="consulo.audio.playlist.AudioPlaylistStore"/>
-	</extensions>
+	<depends optional="true">consulo.desktop.awt</depends>
 </consulo-plugin>

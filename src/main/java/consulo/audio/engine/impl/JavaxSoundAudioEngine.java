@@ -1,13 +1,14 @@
 package consulo.audio.engine.impl;
 
-import com.intellij.openapi.fileTypes.FileTypeConsumer;
-import com.intellij.openapi.util.io.StreamUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.audio.AudioFileType;
 import consulo.audio.engine.AudioEngine;
 import consulo.audio.engine.AudioPlayer;
 import consulo.ui.UIAccess;
+import consulo.util.io.StreamUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.fileType.FileTypeConsumer;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 
 import javax.annotation.Nonnull;
 import javax.sound.sampled.*;
@@ -18,6 +19,7 @@ import java.io.IOException;
  * @author VISTALL
  * @since 2020-11-12
  */
+@ExtensionImpl
 public class JavaxSoundAudioEngine implements AudioEngine
 {
 	@Override
@@ -43,7 +45,7 @@ public class JavaxSoundAudioEngine implements AudioEngine
 			throw new IllegalArgumentException("Do not call this inside UI Thread");
 		}
 
-		File file = VfsUtil.virtualToIoFile(audioFile);
+		File file = VirtualFileUtil.virtualToIoFile(audioFile);
 
 		AudioInputStream encodedStream = AudioSystem.getAudioInputStream(file);
 

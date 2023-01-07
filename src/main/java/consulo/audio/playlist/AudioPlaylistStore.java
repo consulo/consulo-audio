@@ -1,16 +1,21 @@
 package consulo.audio.playlist;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.inject.Singleton;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Deque;
 
 /**
  * @author VISTALL
@@ -18,6 +23,8 @@ import java.util.*;
  */
 @Singleton
 @State(name = "AudioPlaylistStore", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class AudioPlaylistStore implements PersistentStateComponent<AudioPlaylistStore.State>
 {
 	public static class State

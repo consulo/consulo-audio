@@ -1,26 +1,23 @@
 package consulo.audio.fileEditorProvider;
 
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorLocation;
-import com.intellij.openapi.fileEditor.FileEditorState;
-import com.intellij.openapi.fileEditor.FileEditorStateLevel;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.VerticalFlowLayout;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.*;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.JBList;
-import com.intellij.util.PathUtil;
-import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 import consulo.audio.playlist.AudioPlaylistStore;
 import consulo.disposer.Disposer;
+import consulo.fileEditor.FileEditor;
+import consulo.fileEditor.FileEditorLocation;
+import consulo.fileEditor.FileEditorState;
+import consulo.fileEditor.FileEditorStateLevel;
 import consulo.logging.Logger;
 import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.project.Project;
+import consulo.ui.ex.JBColor;
+import consulo.ui.ex.SimpleTextAttributes;
+import consulo.ui.ex.awt.*;
 import consulo.ui.image.Image;
 import consulo.util.dataholder.UserDataHolderBase;
+import consulo.util.io.FileUtil;
+import consulo.util.io.PathUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import kava.beans.PropertyChangeListener;
 
 import javax.annotation.Nonnull;
@@ -101,14 +98,14 @@ public class AudioPlaylistFileEditor extends UserDataHolderBase implements FileE
 			panel.setBorder(JBUI.Borders.empty(0, 5));
 			panel.setBackground(UIUtil.getListBackground(isSelected));
 
-			Image icon = PlatformIconGroup.fileTypesUnknown();
+			Image icon = PlatformIconGroup.filetypesUnknown();
 			String fileRelativePath = "";
 			String filePath = FileUtil.toSystemDependentName(playerWrapper.getFilePath());
 
 			VirtualFile file = playerWrapper.getFile();
 			if(file != null)
 			{
-				String relativeLocation = VfsUtil.getRelativeLocation(file, myProject.getBaseDir());
+				String relativeLocation = VirtualFileUtil.getRelativeLocation(file, myProject.getBaseDir());
 				if(relativeLocation != null)
 				{
 					fileRelativePath = relativeLocation;

@@ -1,17 +1,18 @@
 package consulo.audio;
 
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.INativeFileType;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import consulo.audio.fileEditorProvider.AudioPlaylistFileEditor;
 import consulo.audio.icon.AudioIconGroup;
 import consulo.audio.playlist.vfs.PlaylistVirtualFile;
 import consulo.audio.playlist.vfs.PlaylistVirtualFileSystem;
+import consulo.component.ComponentManager;
+import consulo.fileEditor.FileEditor;
+import consulo.fileEditor.FileEditorManager;
 import consulo.localize.LocalizeValue;
+import consulo.project.Project;
 import consulo.ui.image.Image;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.fileType.FileType;
+import consulo.virtualFileSystem.fileType.INativeFileType;
 
 import javax.annotation.Nonnull;
 
@@ -54,13 +55,13 @@ public class AudioFileType implements FileType, INativeFileType
 	@Override
 	public Image getIcon()
 	{
-		return AudioIconGroup.audioFile();
+		return AudioIconGroup.audiofile();
 	}
 
 	@Override
-	public boolean openFileInAssociatedApplication(Project project, @Nonnull VirtualFile virtualFile)
+	public boolean openFileInAssociatedApplication(ComponentManager project, @Nonnull VirtualFile virtualFile)
 	{
-		FileEditor[] fileEditors = FileEditorManager.getInstance(project).openFile(new PlaylistVirtualFile(PlaylistVirtualFileSystem.getInstance()), true);
+		FileEditor[] fileEditors = FileEditorManager.getInstance((Project) project).openFile(new PlaylistVirtualFile(PlaylistVirtualFileSystem.getInstance()), true);
 		for(FileEditor fileEditor : fileEditors)
 		{
 			if(fileEditor instanceof AudioPlaylistFileEditor)

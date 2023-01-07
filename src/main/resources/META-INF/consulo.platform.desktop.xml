@@ -1,5 +1,0 @@
-<consulo-plugin>
-	<extensions defaultExtensionNs="consulo.audio">
-		<engine implementation="consulo.audio.engine.impl.JavaxSoundAudioEngine" id="javax"/>
-	</extensions>
-</consulo-plugin>

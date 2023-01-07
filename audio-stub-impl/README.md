@@ -1,0 +1,1 @@
+Used while plugin deploy to repository. It will register default audio file types

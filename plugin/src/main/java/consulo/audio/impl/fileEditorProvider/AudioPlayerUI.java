@@ -3,6 +3,7 @@ package consulo.audio.impl.fileEditorProvider;
 import consulo.application.util.concurrent.AppExecutorUtil;
 import consulo.audio.engine.AudioPlayer;
 import consulo.audio.engine.AudioPlayerListener;
+import consulo.audio.impl.fileEditorProvider.action.MuteVolumeAction;
 import consulo.audio.impl.fileEditorProvider.action.PlayOrPauseAction;
 import consulo.audio.impl.fileEditorProvider.action.StopAction;
 import consulo.audio.playlist.AudioPlaylistStore;
@@ -31,178 +32,172 @@ import java.util.concurrent.TimeUnit;
  * @author VISTALL
  * @since 17/12/2020
  */
-public class AudioPlayerUI implements Disposable
-{
-	public static final float STEPPING = 10f;
+public class AudioPlayerUI implements Disposable {
+    public static final float STEPPING = 10f;
 
-	@Nonnull
-	private final AudioPlaylistStore myPlaylistStore;
+    @Nonnull
+    private final AudioPlaylistStore myPlaylistStore;
 
-	private LoadingDecorator myLoadingDecorator;
+    private LoadingDecorator myLoadingDecorator;
 
-	private AudioPlayerWrapper myAudioPlayerWrapper;
+    private AudioPlayerWrapper myAudioPlayerWrapper;
 
-	private JPanel myRootPanel;
+    private JPanel myRootPanel;
 
-	private JComponent myPlayerUI;
+    private JComponent myPlayerUI;
 
-	private JSlider myVolumeSlider;
+    private JSlider myVolumeSlider;
 
-	private Future<?> myUIRepainter = CompletableFuture.completedFuture(null);
-	private final JBLabel myPositionInfo;
-	private final JSlider myPositionSlider;
+    private Future<?> myUIRepainter = CompletableFuture.completedFuture(null);
+    private final JBLabel myPositionInfo;
+    private final JSlider myPositionSlider;
 
-	public AudioPlayerUI(AudioPlaylistStore playlistStore)
-	{
-		myPlaylistStore = playlistStore;
-		ActionGroup.Builder builder = ActionGroup.newImmutableBuilder();
+    @RequiredUIAccess
+    public AudioPlayerUI(AudioPlaylistStore playlistStore) {
+        myPlaylistStore = playlistStore;
+        ActionGroup.Builder builder = ActionGroup.newImmutableBuilder();
 
-		builder.add(new PlayOrPauseAction());
-		builder.add(new StopAction());
+        builder.add(new PlayOrPauseAction());
+        builder.add(new StopAction());
 
-		myVolumeSlider = new JSlider(0, (int) (100 * STEPPING), (int) (playlistStore.getVolume() * 10f));
-		myVolumeSlider.addChangeListener(changeEvent ->
-		{
-			float value = myVolumeSlider.getValue() / STEPPING;
+        myVolumeSlider = new JSlider(0, (int) (100 * STEPPING), (int) (playlistStore.getVolume() * 10f));
 
-			myPlaylistStore.setVolume(value);
 
-			if(myAudioPlayerWrapper != null)
-			{
-				AudioPlayer player = myAudioPlayerWrapper.getPlayer();
-				if(player != null)
-				{
-					player.setVolume(value);
-				}
-			}
-		});
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBorder(JBUI.Borders.empty(5));
 
-		JPanel topPanel = new JPanel(new BorderLayout());
-		topPanel.setBorder(JBUI.Borders.empty(5));
+        JPanel topRight = new JPanel(new HorizontalLayout(5));
+        topRight.add(myVolumeSlider);
 
-		JPanel topRight = new JPanel(new HorizontalLayout(5));
-		topRight.add(new JBLabel("Volume:"));
-		topRight.add(myVolumeSlider);
+        ActionToolbar volumeToolbar = ActionManager.getInstance().
+            createActionToolbar("Volume", ActionGroup.newImmutableBuilder().add(new MuteVolumeAction(myVolumeSlider)).build(), true);
+        volumeToolbar.setTargetComponent(myVolumeSlider);
+        volumeToolbar.updateActionsImmediately();
 
-		topPanel.add(topRight, BorderLayout.EAST);
+        myVolumeSlider.addChangeListener(changeEvent -> {
+            float value = myVolumeSlider.getValue() / STEPPING;
 
-		myRootPanel = new JPanel(new BorderLayout());
-		myRootPanel.add(topPanel, BorderLayout.NORTH);
+            myPlaylistStore.setVolume(value);
 
-		ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("audio-editor", builder.build(), true);
-		toolbar.setTargetComponent(myRootPanel);
+            if (myAudioPlayerWrapper != null) {
+                AudioPlayer player = myAudioPlayerWrapper.getPlayer();
+                if (player != null) {
+                    player.setVolume(value);
+                }
+            }
 
-		DataManager.registerDataProvider(myRootPanel, key -> {
-			if(key == AudioPlayer.KEY)
-			{
-				return myAudioPlayerWrapper == null ? null : myAudioPlayerWrapper.getPlayer();
-			}
+            volumeToolbar.updateActionsImmediately();
+        });
 
-			return null;
-		});
+        topRight.add(volumeToolbar.getComponent());
 
-		myPlayerUI = toolbar.getComponent();
+        topPanel.add(topRight, BorderLayout.EAST);
 
-		myLoadingDecorator = new LoadingDecorator(myRootPanel, this, 100);
+        myRootPanel = new JPanel(new BorderLayout());
+        myRootPanel.add(topPanel, BorderLayout.NORTH);
 
-		myPositionSlider = new JSlider(0, 100, 0);
-		myPositionInfo = new JBLabel("", SwingConstants.CENTER);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("AudioPlayer", builder.build(), true);
+        toolbar.setTargetComponent(myRootPanel);
 
-		JPanel centerPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.MIDDLE, true, false));
-		centerPanel.add(myPositionSlider);
-		centerPanel.add(myPositionInfo);
-		centerPanel.add(myPlayerUI);
+        DataManager.registerDataProvider(myRootPanel, key -> {
+            if (key == AudioPlayer.KEY) {
+                return myAudioPlayerWrapper == null ? null : myAudioPlayerWrapper.getPlayer();
+            }
 
-		myRootPanel.add(centerPanel, BorderLayout.CENTER);
+            return null;
+        });
 
-		ColumnInfo.StringColumn name = new ColumnInfo.StringColumn("Name");
-		ColumnInfo.StringColumn value = new ColumnInfo.StringColumn("Value");
+        myPlayerUI = toolbar.getComponent();
 
-		Map<String, String> properties = new TreeMap<>();
+        myLoadingDecorator = new LoadingDecorator(myRootPanel, this, 100);
 
-		TableView<Map.Entry<String, String>> propertiesTable = new TableView<>(new ListTableModel<>(new ColumnInfo[]{
-				name,
-				value
-		}, new ArrayList<>(properties.entrySet())));
+        myPositionSlider = new JSlider(0, 100, 0);
+        myPositionInfo = new JBLabel("", SwingConstants.CENTER);
 
-		myRootPanel.add(ScrollPaneFactory.createScrollPane(propertiesTable, true), BorderLayout.SOUTH);
-	}
+        JPanel centerPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.MIDDLE, true, false));
+        centerPanel.add(myPositionSlider);
+        centerPanel.add(myPositionInfo);
+        centerPanel.add(myPlayerUI);
 
-	private void update()
-	{
-		long currentPosition = 0;
-		long maxPosition = 0;
-		AudioPlayerWrapper audioPlayerWrapper = myAudioPlayerWrapper;
-		if(audioPlayerWrapper != null)
-		{
-			AudioPlayer player = audioPlayerWrapper.getPlayer();
-			if(player != null)
-			{
-				currentPosition = player.getPosition();
-				maxPosition = player.getMaxPosition();
-			}
-		}
+        myRootPanel.add(centerPanel, BorderLayout.CENTER);
 
-		int currentPerc = (int) ((currentPosition / (float) maxPosition) * 100f);
+        ColumnInfo.StringColumn name = new ColumnInfo.StringColumn("Name");
+        ColumnInfo.StringColumn value = new ColumnInfo.StringColumn("Value");
 
-		myPositionSlider.setValue(currentPerc);
-		
-		myPositionInfo.setText(StringUtil.formatDuration(currentPosition) + " of " + StringUtil.formatDuration(maxPosition));
-	}
+        Map<String, String> properties = new TreeMap<>();
 
-	@RequiredUIAccess
-	public void update(@Nonnull AudioPlayerWrapper wrapper)
-	{
-		AudioPlayerWrapper oldWrapper = myAudioPlayerWrapper;
-		if(oldWrapper != null)
-		{
-			AudioPlayer player = oldWrapper.getPlayer();
-			if(player != null)
-			{
-				player.stop();
+        TableView<Map.Entry<String, String>> propertiesTable = new TableView<>(new ListTableModel<>(new ColumnInfo[]{
+            name,
+            value
+        }, new ArrayList<>(properties.entrySet())));
 
-				myUIRepainter.cancel(false);
-			}
-		}
+        myRootPanel.add(ScrollPaneFactory.createScrollPane(propertiesTable, true), BorderLayout.SOUTH);
+    }
 
-		myAudioPlayerWrapper = wrapper;
+    private void update() {
+        long currentPosition = 0;
+        long maxPosition = 0;
+        AudioPlayerWrapper audioPlayerWrapper = myAudioPlayerWrapper;
+        if (audioPlayerWrapper != null) {
+            AudioPlayer player = audioPlayerWrapper.getPlayer();
+            if (player != null) {
+                currentPosition = player.getPosition();
+                maxPosition = player.getMaxPosition();
+            }
+        }
 
-		myLoadingDecorator.startLoading(false);
+        int currentPerc = (int) ((currentPosition / (float) maxPosition) * 100f);
 
-		wrapper.getOrLoad().doWhenProcessed(myLoadingDecorator::stopLoading).doWhenDone((player) -> {
-			player.setVolume(myVolumeSlider.getValue() / STEPPING);
+        myPositionSlider.setValue(currentPerc);
 
-			update();
+        myPositionInfo.setText(StringUtil.formatDuration(currentPosition) + " of " + StringUtil.formatDuration(maxPosition));
+    }
 
-			player.addListener(new AudioPlayerListener()
-			{
-				@Override
-				public void onPlay()
-				{
-					onStop();
+    @RequiredUIAccess
+    public void update(@Nonnull AudioPlayerWrapper wrapper) {
+        AudioPlayerWrapper oldWrapper = myAudioPlayerWrapper;
+        if (oldWrapper != null) {
+            AudioPlayer player = oldWrapper.getPlayer();
+            if (player != null) {
+                player.stop();
 
-					myUIRepainter = AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(() -> update(), 100, 100, TimeUnit.MILLISECONDS);
-				}
+                myUIRepainter.cancel(false);
+            }
+        }
 
-				@Override
-				public void onStop()
-				{
-					myUIRepainter.cancel(false);
+        myAudioPlayerWrapper = wrapper;
 
-					update();
-				}
-			}, AudioPlayerUI.this);
-		});
-	}
+        myLoadingDecorator.startLoading(false);
 
-	public JComponent getComponent()
-	{
-		return myLoadingDecorator.getComponent();
-	}
+        wrapper.getOrLoad().doWhenProcessed(myLoadingDecorator::stopLoading).doWhenDone((player) -> {
+            player.setVolume(myVolumeSlider.getValue() / STEPPING);
 
-	@Override
-	public void dispose()
-	{
-		myUIRepainter.cancel(false);
-	}
+            update();
+
+            player.addListener(new AudioPlayerListener() {
+                @Override
+                public void onPlay() {
+                    onStop();
+
+                    myUIRepainter = AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(() -> update(), 100, 100, TimeUnit.MILLISECONDS);
+                }
+
+                @Override
+                public void onStop() {
+                    myUIRepainter.cancel(false);
+
+                    update();
+                }
+            }, AudioPlayerUI.this);
+        });
+    }
+
+    public JComponent getComponent() {
+        return myLoadingDecorator.getComponent();
+    }
+
+    @Override
+    public void dispose() {
+        myUIRepainter.cancel(false);
+    }
 }

@@ -5,7 +5,7 @@ import consulo.audio.engine.AudioPlayerListener;
 import consulo.disposer.Disposable;
 import consulo.proxy.EventDispatcher;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;

@@ -1,4 +1,4 @@
-<consulo-plugin url="https://github.com/consulo/incubating-consulo-audio">
+<consulo-plugin url="https://github.com/consulo/consulo-audio">
 	<id>consulo.audio</id>
 	<name>Audio</name>
 	<description>Plugin for playing audio files</description>
@@ -6,7 +6,6 @@
 		<tag>editor.extension</tag>
 		<tag>tools</tag>
 	</tags>
-	<experimental>true</experimental>
 
 	<depends optional="true">consulo.desktop.awt</depends>
 </consulo-plugin>

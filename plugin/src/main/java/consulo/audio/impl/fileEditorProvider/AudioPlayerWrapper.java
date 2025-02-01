@@ -9,123 +9,108 @@ import consulo.util.concurrent.AsyncResult;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import java.util.Objects;
 
 /**
  * @author VISTALL
  * @since 17/12/2020
  */
-public class AudioPlayerWrapper implements Disposable
-{
-	private final String myFileUrl;
-	private final VirtualFile myFileByUrl;
+public class AudioPlayerWrapper implements Disposable {
+    private final String myFileUrl;
+    private final VirtualFile myFileByUrl;
 
-	private AudioPlayer myPlayer;
-	private Throwable myError;
+    private AudioPlayer myPlayer;
+    private Throwable myError;
 
-	private AsyncResult<AudioPlayer> myProcessingResult;
+    private AsyncResult<AudioPlayer> myProcessingResult;
 
-	public AudioPlayerWrapper(String fileUrl)
-	{
-		myFileUrl = fileUrl;
+    public AudioPlayerWrapper(String fileUrl) {
+        myFileUrl = fileUrl;
+        myFileByUrl = VirtualFileManager.getInstance().findFileByUrl(fileUrl);
+    }
 
-		myFileByUrl = VirtualFileManager.getInstance().findFileByUrl(fileUrl);
-	}
+    @Nonnull
+    public AsyncResult<AudioPlayer> getOrLoad() {
+        if (myFileByUrl == null) {
+            return AsyncResult.rejected();
+        }
 
-	@Nonnull
-	public AsyncResult<AudioPlayer> getOrLoad()
-	{
-		if(myFileByUrl == null)
-		{
-			return AsyncResult.rejected();
-		}
+        if (myPlayer != null) {
+            return AsyncResult.resolved(myPlayer);
+        }
 
-		if(myPlayer != null)
-		{
-			return AsyncResult.resolved(myPlayer);
-		}
+        if (myError != null) {
+            return AsyncResult.<AudioPlayer>undefined().rejectWithThrowable(myError);
+        }
 
-		if(myError != null)
-		{
-			return AsyncResult.<AudioPlayer>undefined().rejectWithThrowable(myError);
-		}
+        if (myProcessingResult != null) {
+            return myProcessingResult;
+        }
 
-		if(myProcessingResult != null)
-		{
-			return myProcessingResult;
-		}
+        myProcessingResult = AsyncResult.undefined();
 
-		myProcessingResult = AsyncResult.undefined();
+        AudioEngine engine = AudioEngine.forFile(Application.get(), myFileByUrl);
 
-		AudioEngine engine = AudioEngine.forFile(Application.get(), myFileByUrl);
+        AppExecutorUtil.getAppExecutorService().execute(() -> {
+            try {
+                myProcessingResult.setDone(myPlayer = engine.createPlayer(myFileByUrl));
+            }
+            catch (Throwable e) {
+                myProcessingResult.rejectWithThrowable(myError = e);
+            }
+        });
 
-		AppExecutorUtil.getAppExecutorService().execute(() -> {
-			try
-			{
-				myProcessingResult.setDone(myPlayer = engine.createPlayer(myFileByUrl));
-			}
-			catch(Throwable e)
-			{
-				myProcessingResult.rejectWithThrowable(myError = e);
-			}
-		});
+        return myProcessingResult;
+    }
 
-		return myProcessingResult;
-	}
+    @Nonnull
+    public String getFilePath() {
+        return VirtualFileUtil.urlToPath(myFileUrl);
+    }
 
-	@Nonnull
-	public String getFilePath()
-	{
-		return VirtualFileUtil.urlToPath(myFileUrl);
-	}
+    @Nullable
+    public VirtualFile getFile() {
+        return myFileByUrl;
+    }
 
-	@Nullable
-	public VirtualFile getFile()
-	{
-		return myFileByUrl;
-	}
+    public boolean isLoaded() {
+        return myPlayer != null;
+    }
 
-	public boolean isLoaded()
-	{
-		return myPlayer != null;
-	}
+    @Nonnull
+    public String getFileUrl() {
+        return myFileUrl;
+    }
 
-	@Nullable
-	public AudioPlayer getPlayer()
-	{
-		return myPlayer;
-	}
+    @Nullable
+    public AudioPlayer getPlayer() {
+        return myPlayer;
+    }
 
-	@Override
-	public boolean equals(Object o)
-	{
-		if(this == o)
-		{
-			return true;
-		}
-		if(o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		AudioPlayerWrapper that = (AudioPlayerWrapper) o;
-		return Objects.equals(myFileUrl, that.myFileUrl);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AudioPlayerWrapper that = (AudioPlayerWrapper) o;
+        return Objects.equals(myFileUrl, that.myFileUrl);
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(myFileUrl);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(myFileUrl);
+    }
 
-	@Override
-	public void dispose()
-	{
-		if(myPlayer != null)
-		{
-			myPlayer.dispose();
-		}
-	}
+    @Override
+    public void dispose() {
+        if (myPlayer != null) {
+            myPlayer.dispose();
+        }
+    }
 }

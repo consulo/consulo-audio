@@ -78,7 +78,7 @@ public class AudioSystemProxy {
             Collections.addAll(result, writer.getAudioFileTypes());
             return null;
         });
-
+        
         return result;
     }
 

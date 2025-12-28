@@ -8,7 +8,6 @@ import consulo.audio.engine.AudioEngine;
 import consulo.audio.engine.AudioPlayer;
 import consulo.ui.UIAccess;
 import consulo.util.io.StreamUtil;
-import consulo.util.lang.function.ThrowableSupplier;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.fileType.FileTypeConsumer;
 import jakarta.annotation.Nonnull;
@@ -88,21 +87,6 @@ public class JavaxSoundAudioEngine implements AudioEngine {
             String extension = type.getExtension();
 
             fileTypeConsumer.consume(AudioFileType.INSTANCE, extension);
-        }
-    }
-
-    @Deprecated
-    private <T, E extends Exception> T runUnderSystemClassLoader(@Nonnull ThrowableSupplier<T, E> consumer) throws E {
-        Thread currentThread = Thread.currentThread();
-
-        ClassLoader old = currentThread.getContextClassLoader();
-
-        currentThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
-        try {
-            return consumer.get();
-        }
-        finally {
-            currentThread.setContextClassLoader(old);
         }
     }
 }

@@ -52,6 +52,7 @@
                         <version>${build.number}</version>
                     </packaging>
                     <dependencies>
+                        <dependency>consulo.audio.format.flac</dependency>
                     </dependencies>
                 </configuration>
                 <executions>

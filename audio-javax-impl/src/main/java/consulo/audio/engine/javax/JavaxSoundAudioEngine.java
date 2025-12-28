@@ -2,6 +2,7 @@ package consulo.audio.engine.javax;
 
 import consulo.annotation.component.ComponentProfiles;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.application.Application;
 import consulo.audio.AudioFileType;
 import consulo.audio.engine.AudioEngine;
 import consulo.audio.engine.AudioPlayer;
@@ -10,11 +11,10 @@ import consulo.util.io.StreamUtil;
 import consulo.util.lang.function.ThrowableSupplier;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.fileType.FileTypeConsumer;
-import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
+import jakarta.inject.Inject;
 
 import javax.sound.sampled.*;
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -23,6 +23,13 @@ import java.io.IOException;
  */
 @ExtensionImpl(id = "javax", profiles = ComponentProfiles.AWT)
 public class JavaxSoundAudioEngine implements AudioEngine {
+    private final Application myApplication;
+
+    @Inject
+    public JavaxSoundAudioEngine(Application application) {
+        myApplication = application;
+    }
+
     @Override
     public boolean isAvailable(@Nonnull VirtualFile virtualFile) {
         try {
@@ -39,9 +46,7 @@ public class JavaxSoundAudioEngine implements AudioEngine {
     public AudioPlayer createPlayer(@Nonnull VirtualFile audioFile) throws Exception {
         UIAccess.assetIsNotUIThread();
 
-        File file = VirtualFileUtil.virtualToIoFile(audioFile);
-
-        AudioInputStream encodedStream = runUnderSystemClassLoader(() -> AudioSystem.getAudioInputStream(file));
+        AudioInputStream encodedStream = AudioSystemProxy.getAudioInputStream(myApplication, audioFile.getInputStream());
 
         Clip clip;
         try {
@@ -49,8 +54,8 @@ public class JavaxSoundAudioEngine implements AudioEngine {
 
             int bitDepth = 16;
 
-            AudioFormat decodedFormat = new javax.sound.sampled.AudioFormat(
-                javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED,
+            AudioFormat decodedFormat = new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
                 encodedFormat.getSampleRate(),
                 bitDepth,
                 encodedFormat.getChannels(),
@@ -58,19 +63,16 @@ public class JavaxSoundAudioEngine implements AudioEngine {
                 44100,
                 encodedFormat.isBigEndian());
 
-            clip = runUnderSystemClassLoader(AudioSystem::getClip);
+            clip = AudioSystemProxy.getClip(myApplication);
 
-            runUnderSystemClassLoader(() -> {
-                if (AudioSystem.isConversionSupported(decodedFormat, encodedFormat)) {
-                    AudioInputStream decodedStream = AudioSystem.getAudioInputStream(decodedFormat, encodedStream);
+            if (AudioSystemProxy.isConversionSupported(myApplication, decodedFormat, encodedFormat)) {
+                AudioInputStream decodedStream = AudioSystemProxy.getAudioInputStream(myApplication, decodedFormat, encodedStream);
 
-                    clip.open(decodedStream);
-                }
-                else {
-                    clip.open(encodedStream);
-                }
-                return null;
-            });
+                clip.open(decodedStream);
+            }
+            else {
+                clip.open(encodedStream);
+            }
         }
         catch (IOException | LineUnavailableException e) {
             StreamUtil.closeStream(encodedStream);
@@ -82,15 +84,14 @@ public class JavaxSoundAudioEngine implements AudioEngine {
 
     @Override
     public void registerFileTypes(FileTypeConsumer fileTypeConsumer) {
-        AudioFileFormat.Type[] audioFileTypes = runUnderSystemClassLoader(AudioSystem::getAudioFileTypes);
-
-        for (AudioFileFormat.Type type : audioFileTypes) {
+        for (AudioFileFormat.Type type : AudioSystemProxy.getAudioFileTypes(myApplication)) {
             String extension = type.getExtension();
 
             fileTypeConsumer.consume(AudioFileType.INSTANCE, extension);
         }
     }
 
+    @Deprecated
     private <T, E extends Exception> T runUnderSystemClassLoader(@Nonnull ThrowableSupplier<T, E> consumer) throws E {
         Thread currentThread = Thread.currentThread();
 

@@ -16,6 +16,7 @@ import consulo.ui.image.Image;
 import consulo.util.io.FileUtil;
 import consulo.util.io.PathUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -58,8 +59,13 @@ public class AudioPlaylistFileEditorImpl extends ConfigurationFileEditor impleme
                 .filter(it -> Objects.equals(it.getFileUrl(), fileUrl))
                 .findFirst();
 
-            opt.ifPresent(it -> {
+            opt.ifPresentOrElse(it -> {
                 myProject.getUIAccess().give(() -> myList.setSelectedValue(it, true));
+            }, () -> {
+                VirtualFile fileByUrl = VirtualFileManager.getInstance().findFileByUrl(fileUrl);
+                if (fileByUrl != null) {
+                    myProject.getUIAccess().give(() -> addFile(fileByUrl));
+                }
             });
         }
     }

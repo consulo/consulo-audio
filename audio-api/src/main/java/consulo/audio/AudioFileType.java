@@ -6,6 +6,7 @@ import consulo.component.ComponentManager;
 import consulo.configuration.editor.ConfigurationFileEditorManager;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.fileType.FileType;
@@ -50,15 +51,14 @@ public class AudioFileType implements FileType, INativeFileType {
         return AudioIconGroup.audiofile();
     }
 
+    @RequiredUIAccess
     @Override
-    public boolean openFileInAssociatedApplication(ComponentManager project, @Nonnull VirtualFile virtualFile) {
+    public void openFileInAssociatedApplication(ComponentManager project, @Nonnull VirtualFile virtualFile) {
         Project projectCast = (Project) project;
 
         ConfigurationFileEditorManager editorManager = projectCast.getApplication().getInstance(ConfigurationFileEditorManager.class);
 
         editorManager.open(projectCast, PlaylistConfigurationFileEditorProvider.class,
             Map.of(PlaylistConfigurationFileEditorProvider.AUDIO_FILE_URL, virtualFile.getUrl()));
-
-        return true;
     }
 }

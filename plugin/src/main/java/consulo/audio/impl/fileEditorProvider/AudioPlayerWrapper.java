@@ -5,6 +5,7 @@ import consulo.application.util.concurrent.AppExecutorUtil;
 import consulo.audio.engine.AudioEngine;
 import consulo.audio.engine.AudioPlayer;
 import consulo.disposer.Disposable;
+import consulo.logging.Logger;
 import consulo.util.concurrent.AsyncResult;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileManager;
@@ -19,6 +20,8 @@ import java.util.Objects;
  * @since 17/12/2020
  */
 public class AudioPlayerWrapper implements Disposable {
+    private static final Logger LOG = Logger.getInstance(AudioPlayerWrapper.class);
+
     private final String myFileUrl;
     private final VirtualFile myFileByUrl;
 
@@ -59,6 +62,7 @@ public class AudioPlayerWrapper implements Disposable {
                 myProcessingResult.setDone(myPlayer = engine.createPlayer(myFileByUrl));
             }
             catch (Throwable e) {
+                LOG.warn(e);
                 myProcessingResult.rejectWithThrowable(myError = e);
             }
         });

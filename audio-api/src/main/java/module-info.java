@@ -3,7 +3,9 @@
  * @since 07/01/2023
  */
 module consulo.audio.api {
-    requires transitive consulo.ide.api;
+    requires transitive consulo.file.editor.api;
+    requires consulo.configuration.editor.api;
+    requires consulo.language.api;
 
     exports consulo.audio;
     exports consulo.audio.engine;

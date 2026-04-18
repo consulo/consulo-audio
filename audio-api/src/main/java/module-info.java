@@ -3,7 +3,16 @@
  * @since 07/01/2023
  */
 module consulo.audio.api {
+    requires consulo.application.api;
+    requires consulo.component.api;
+    requires consulo.disposer.api;
     requires transitive consulo.file.editor.api;
+    requires consulo.localize.api;
+    requires consulo.project.api;
+    requires consulo.ui.api;
+    requires consulo.util.dataholder;
+    requires consulo.virtual.file.system.api;
+
     requires consulo.configuration.editor.api;
     requires consulo.language.api;
 

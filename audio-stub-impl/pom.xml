@@ -24,6 +24,19 @@
 	</repositories>
 	<dependencies>
 		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-file-editor-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-virtual-file-system-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>consulo.audio.api</artifactId>
 			<version>${project.version}</version>

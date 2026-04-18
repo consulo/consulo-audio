@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>consulo</groupId>
-        <artifactId>arch.ide.java</artifactId>
+        <artifactId>arch.bind.java</artifactId>
         <version>3-SNAPSHOT</version>
         <relativePath/>
     </parent>
@@ -66,11 +66,62 @@
     </build>
 
     <dependencies>
+        <!-- platform -->
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-application-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-component-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-disposer-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>consulo</groupId>
             <artifactId>consulo-file-editor-api</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-localize-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-project-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-ui-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-util-dataholder</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>consulo</groupId>
+            <artifactId>consulo-virtual-file-system-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>consulo</groupId>
             <artifactId>consulo-configuration-editor-api</artifactId>

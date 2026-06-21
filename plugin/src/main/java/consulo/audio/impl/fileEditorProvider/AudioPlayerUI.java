@@ -7,7 +7,7 @@ import consulo.audio.impl.fileEditorProvider.action.MuteVolumeAction;
 import consulo.audio.impl.fileEditorProvider.action.PlayOrPauseAction;
 import consulo.audio.impl.fileEditorProvider.action.StopAction;
 import consulo.audio.playlist.AudioPlaylistStore;
-import consulo.dataContext.DataManager;
+import consulo.dataContext.UiDataProvider;
 import consulo.disposer.Disposable;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionGroup;
@@ -17,8 +17,8 @@ import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.table.ListTableModel;
 import consulo.ui.ex.awt.table.TableView;
 import consulo.util.lang.StringUtil;
-
 import jakarta.annotation.Nonnull;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class AudioPlayerUI implements Disposable {
         ActionToolbar volumeToolbar = ActionManager.getInstance().
             createActionToolbar("Volume", ActionGroup.newImmutableBuilder().add(new MuteVolumeAction(myVolumeSlider)).build(), true);
         volumeToolbar.setTargetComponent(myVolumeSlider);
-        volumeToolbar.updateActionsImmediately();
+        volumeToolbar.updateActionsAsync();
 
         myVolumeSlider.addChangeListener(changeEvent -> {
             float value = myVolumeSlider.getValue() / STEPPING;
@@ -86,7 +86,7 @@ public class AudioPlayerUI implements Disposable {
                 }
             }
 
-            volumeToolbar.updateActionsImmediately();
+            volumeToolbar.updateActionsAsync();
         });
 
         topRight.add(volumeToolbar.getComponent());
@@ -99,12 +99,10 @@ public class AudioPlayerUI implements Disposable {
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("AudioPlayer", builder.build(), true);
         toolbar.setTargetComponent(myRootPanel);
 
-        DataManager.registerDataProvider(myRootPanel, key -> {
-            if (key == AudioPlayer.KEY) {
-                return myAudioPlayerWrapper == null ? null : myAudioPlayerWrapper.getPlayer();
+        ClientProperty.put(myRootPanel, UiDataProvider.KEY, sink -> {
+            if (myAudioPlayerWrapper != null) {
+                sink.set(AudioPlayer.KEY, myAudioPlayerWrapper.getPlayer());
             }
-
-            return null;
         });
 
         myPlayerUI = toolbar.getComponent();

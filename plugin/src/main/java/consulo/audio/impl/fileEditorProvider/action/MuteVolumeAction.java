@@ -3,6 +3,7 @@ package consulo.audio.impl.fileEditorProvider.action;
 import consulo.audio.icon.AudioIconGroup;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.image.Image;
 import jakarta.annotation.Nonnull;
@@ -13,7 +14,7 @@ import javax.swing.*;
  * @author VISTALL
  * @since 2024-12-10
  */
-public class MuteVolumeAction extends DumbAwareAction {
+public class MuteVolumeAction extends DumbAwareAction implements AnActionWithSyncUpdate {
     private final JSlider myVolumeSlider;
 
     private int myLastValue;
@@ -36,7 +37,6 @@ public class MuteVolumeAction extends DumbAwareAction {
         }
     }
 
-    @RequiredUIAccess
     @Override
     public void update(@Nonnull AnActionEvent e) {
         int value = myVolumeSlider.getValue();

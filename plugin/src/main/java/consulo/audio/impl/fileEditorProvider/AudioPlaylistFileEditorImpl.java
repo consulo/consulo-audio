@@ -8,10 +8,12 @@ import consulo.disposer.Disposer;
 import consulo.logging.Logger;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.JBColor;
 import consulo.ui.ex.SimpleTextAttributes;
 import consulo.ui.ex.awt.*;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.ui.image.Image;
 import consulo.util.io.FileUtil;
 import consulo.util.io.PathUtil;
@@ -68,6 +70,11 @@ public class AudioPlaylistFileEditorImpl extends ConfigurationFileEditor impleme
                 }
             });
         }
+    }
+
+    @Override
+    public Component getUIComponent() {
+        return TargetAWT.wrap(getComponent());
     }
 
     @Override
@@ -178,8 +185,7 @@ public class AudioPlaylistFileEditorImpl extends ConfigurationFileEditor impleme
 
     @Override
     public void addFile(@Nonnull VirtualFile file) {
-        AudioPlayerWrapper wrapper = myLoadedFiles.computeIfAbsent(file.getUrl(), s ->
-        {
+        AudioPlayerWrapper wrapper = myLoadedFiles.computeIfAbsent(file.getUrl(), s -> {
             AudioPlaylistStore playlistStore = AudioPlaylistStore.getInstance(myProject);
 
             playlistStore.addFile(file);
@@ -197,7 +203,12 @@ public class AudioPlaylistFileEditorImpl extends ConfigurationFileEditor impleme
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return myRoot;
+        return myList;
+    }
+
+    @Override
+    public @org.jspecify.annotations.Nullable Component getPreferredFocusedUIComponent() {
+        return TargetAWT.wrap(myList);
     }
 
     @Override
